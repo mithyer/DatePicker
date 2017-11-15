@@ -61,11 +61,14 @@ static CGFloat const kConfirmBtnHeight = 50;
 }
 
 - (void)show {
+    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+    if (self.superview.superview == keyWindow) {
+        return;
+    }
     UIView *container = [[UIView alloc] init];
     container.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.2];
     [container addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismiss)]];
 
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
     container.frame = keyWindow.bounds;
     [container addSubview:self];
     UIButton *confirmBtn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -332,8 +335,30 @@ static CGFloat const kConfirmBtnHeight = 50;
         label;
     });
     
-    NSArray *arry = [self unitArrayForOption:self.optionArray[component].integerValue];
-    label.text = [NSString stringWithFormat:@"%@", arry[row]];
+    RYDatePickerComponentsOption option = self.optionArray[component].integerValue;
+    
+    NSString *suffix = nil;
+    switch (option) {
+        case kRYDatePickerComponentsOptionYear:
+            suffix = @"年";
+            break;
+        case kRYDatePickerComponentsOptionMonth:
+            suffix = @"月";
+            break;
+        case kRYDatePickerComponentsOptionDay:
+            suffix = @"日";
+            break;
+        case kRYDatePickerComponentsOptionHour:
+            suffix = @"时";
+            break;
+        case kRYDatePickerComponentsOptionMinute:
+            suffix = @"分";
+            break;
+        default:
+            break;
+    }
+    NSArray *arry = [self unitArrayForOption:option];
+    label.text = [NSString stringWithFormat:@"%@%@", arry[row], suffix];
     
     return label;
 }
@@ -365,11 +390,11 @@ static CGFloat const kConfirmBtnHeight = 50;
         default:
             break;
     }
-    NSDate *date = [NSDate dateWithStr:[NSString stringWithFormat:@"%d-%d-01 00:00", year, month] format:@"yyyy-MM-dd HH:mm"];
+    NSDate *date = [NSDate dateWithStr:[NSString stringWithFormat:@"%zd-%zd-01 00:00", year, month] format:@"yyyy-MM-dd HH:mm"];
     NSRange days = [NSCalendar.currentCalendar rangeOfUnit:NSCalendarUnitDay
                                                     inUnit:NSCalendarUnitMonth
                                                    forDate:date];
-    self.selectDate = [NSDate dateWithStr:[NSString stringWithFormat:@"%d-%d-%d %d:%d", year, month, MIN(day, days.length), hour, minute] format:@"yyyy-MM-dd HH:mm"];
+    self.selectDate = [NSDate dateWithStr:[NSString stringWithFormat:@"%zd-%zd-%zd %zd:%zd", year, month, MIN(day, days.length), hour, minute] format:@"yyyy-MM-dd HH:mm"];
 }
 
 @end
